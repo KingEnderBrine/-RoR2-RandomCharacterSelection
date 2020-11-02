@@ -41,16 +41,36 @@ namespace RandomCharacterSelection
             var bodyIndex = SurvivorCatalog.GetBodyIndexFromSurvivorIndex(RandomizePanelHelpers.cachedCharacterSelectController.selectedSurvivorIndex);
             var bodySkills = BodyCatalog.GetBodyPrefabSkillSlots(bodyIndex);
             var bodySkins = BodyCatalog.GetBodySkins(bodyIndex);
+            
+            var localUser = ((MPEventSystem)EventSystem.current).localUser;
 
             var loadout = new Loadout();
             for (var i = 0; i < bodySkills.Length; i++)
             {
                 var skill = bodySkills[i];
-                loadout.bodyLoadoutManager.SetSkillVariant(bodyIndex, i, (uint)UnityEngine.Random.Range(0, skill.skillFamily.variants.Length));
-            }
-            loadout.bodyLoadoutManager.SetSkinIndex(bodyIndex, (uint)UnityEngine.Random.Range(0, bodySkins.Length));
+                var unlockedVariants = new List<uint>();
+                for (uint j = 0; j < skill.skillFamily.variants.Length; j++)
+                {
+                    if (localUser.userProfile.HasUnlockable(skill.skillFamily.variants[j].unlockableName))
+                    {
+                        unlockedVariants.Add(j);
+                    }
+                }
 
-            var localUser = ((MPEventSystem)EventSystem.current).localUser;
+                loadout.bodyLoadoutManager.SetSkillVariant(bodyIndex, i, unlockedVariants[UnityEngine.Random.Range(0, unlockedVariants.Count)]);
+            }
+
+            var unlockedSkins = new List<uint>();
+            for (uint j = 0; j < bodySkins.Length; j++)
+            {
+                if (localUser.userProfile.HasUnlockable(bodySkins[j].unlockableName))
+                {
+                    unlockedSkins.Add(j);
+                }
+            }
+
+            loadout.bodyLoadoutManager.SetSkinIndex(bodyIndex, unlockedSkins[UnityEngine.Random.Range(0, unlockedSkins.Count)]);
+
             localUser.userProfile.SetLoadout(loadout);
         }
     }
