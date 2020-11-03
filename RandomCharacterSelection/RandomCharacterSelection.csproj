@@ -38,6 +38,9 @@
     <Reference Include="R2API">
       <HintPath>..\..\CommonLibs\R2API.dll</HintPath>
     </Reference>
+    <Reference Include="ScrollableLobbyUI">
+      <HintPath>D:\RoR2 Modding\CommonLibs\ScrollableLobbyUI.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>..\..\CommonLibs\Unity.TextMeshPro.dll</HintPath>
     </Reference>

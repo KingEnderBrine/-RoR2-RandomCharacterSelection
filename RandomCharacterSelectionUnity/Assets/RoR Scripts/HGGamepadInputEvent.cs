@@ -9,5 +9,7 @@ namespace RoR2.UI
 		public UnityEvent actionEvent;
 		public UILayerKey requiredTopLayer;
 		public GameObject[] enabledObjectsIfActive;
+
+		public void Update() {}
 	}
 }
