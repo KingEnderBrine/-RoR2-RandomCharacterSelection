@@ -12,6 +12,10 @@ To navigate to\from these buttons use left\right keys on a D-pad, just like you 
 
 # Changelog
 
+**1.1.1**
+
+* Fixed randomize loadout button selection for gamepad in Eclipse
+
 **1.1.0**
 
 * Fixed all the issues with Eclipse.

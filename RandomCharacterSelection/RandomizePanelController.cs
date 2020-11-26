@@ -41,6 +41,9 @@ namespace RandomCharacterSelection
             if (isEclipseRun)
             {
                 randomizeCharacterButton.SetActive(false);
+
+                var buttonHistory = GetComponent<HGButtonHistory>();
+                buttonHistory.lastRememberedGameObject = randomizeLoadoutButton;
             }
             if (eclipseRunScreenController)
             {
@@ -138,7 +141,6 @@ namespace RandomCharacterSelection
             {
                 scrollableLobbyUIController = eclipseRunScreenController.GetComponentInChildren<ScrollableLobbyUI.CharacterSelectBarControllerReplacement>();
             }
-            Debug.Log(scrollableLobbyUIController);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
@@ -164,14 +166,29 @@ namespace RandomCharacterSelection
 
             var randomizePanel = GameObject.Instantiate(CachedPrefab, self.transform.Find("SafeArea"), false);
 
-            var cscRightInputEventOne = self.GetComponents<HGGamepadInputEvent>().First(el => el.actionName == "UISubmenuRight");
-            cscRightInputEventOne.requiredTopLayer = leftHandPanel.GetComponent<UILayerKey>();
+            HGGamepadInputEvent cscRightInputEventOne;
+            HGGamepadInputEvent cscRightInputEventTwo;
 
-            var cscRightInputEventTwo = self.gameObject.AddComponent<HGGamepadInputEvent>();
-            cscRightInputEventTwo.actionName = cscRightInputEventOne.actionName;
-            cscRightInputEventTwo.actionEvent = cscRightInputEventOne.actionEvent;
-            cscRightInputEventTwo.requiredTopLayer = leftHandPanel.Find("SurvivorInfoPanel, Active (Layer: Secondary)").GetComponent<UILayerKey>();
-            cscRightInputEventTwo.enabledObjectsIfActive = Array.Empty<GameObject>();
+            var cscInputEvents = self.GetComponents<HGGamepadInputEvent>();
+            if (RandomCharacterSelectionPlugin.InLobbyConfigLoaded)
+            {
+                var rightInputs = cscInputEvents.Where(el => el.actionName == "UISubmenuRight");
+                cscRightInputEventOne = rightInputs.ElementAt(0);
+                cscRightInputEventTwo = rightInputs.ElementAt(1);
+            }
+            else
+            {
+                cscRightInputEventOne = cscInputEvents.First(el => el.actionName == "UISubmenuRight");
+                cscRightInputEventOne.requiredTopLayer = leftHandPanel.GetComponent<UILayerKey>();
+
+                cscRightInputEventTwo = self.gameObject.AddComponent<HGGamepadInputEvent>();
+                cscRightInputEventTwo.actionName = cscRightInputEventOne.actionName;
+                cscRightInputEventTwo.actionEvent = cscRightInputEventOne.actionEvent;
+                cscRightInputEventTwo.requiredTopLayer = leftHandPanel.Find("SurvivorInfoPanel, Active (Layer: Secondary)").GetComponent<UILayerKey>();
+                cscRightInputEventTwo.enabledObjectsIfActive = Array.Empty<GameObject>();
+            }
+
+            var randomizePanelRightInputEvent = randomizePanel.GetComponents<HGGamepadInputEvent>().First(input => input.actionName == "UISubmenuRight");
 
             var cscLeftInputEventOne = self.gameObject.AddComponent<HGGamepadInputEvent>();
             cscLeftInputEventOne.actionName = "UISubmenuLeft";
@@ -184,6 +201,12 @@ namespace RandomCharacterSelection
             cscLeftInputEventTwo.actionEvent = cscLeftInputEventOne.actionEvent;
             cscLeftInputEventTwo.requiredTopLayer = cscRightInputEventTwo.requiredTopLayer;
             cscLeftInputEventTwo.enabledObjectsIfActive = Array.Empty<GameObject>();
+
+            var randomizePanelCancelInputEvent = randomizePanel.AddComponent<HGGamepadInputEvent>();
+            randomizePanelCancelInputEvent.actionName = "UICancel";
+            randomizePanelCancelInputEvent.actionEvent = randomizePanelRightInputEvent.actionEvent;
+            randomizePanelCancelInputEvent.requiredTopLayer = randomizePanelRightInputEvent.requiredTopLayer;
+            randomizePanelCancelInputEvent.enabledObjectsIfActive = randomizePanelRightInputEvent.enabledObjectsIfActive;
         }
 
         internal static void EclipseRunScreenControllerStart(On.RoR2.UI.EclipseRunScreenController.orig_Start orig, EclipseRunScreenController self)
