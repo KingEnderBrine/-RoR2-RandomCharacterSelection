@@ -14,7 +14,6 @@ namespace RandomCharacterSelection
 {
     public class RandomizePanelController : MonoBehaviour
     {
-        private readonly Dictionary<LocalUser, SurvivorIndex> lastSelectedCharacterIndex = new Dictionary<LocalUser, SurvivorIndex>();
         public static GameObject CachedPrefab { get; private set; }
 
         public GameObject randomizeCharacterButton;
@@ -63,13 +62,11 @@ namespace RandomCharacterSelection
             }
 
             var localUser = ((MPEventSystem)EventSystem.current).localUser;
-            if (!lastSelectedCharacterIndex.TryGetValue(localUser, out var lastIndex))
-            {
-                lastIndex = SurvivorIndex.Commando;
-            }
-            var survivors = SurvivorCatalog.idealSurvivorOrder.Where(survivorIndex => SurvivorCatalog.SurvivorIsUnlockedOnThisClient(survivorIndex) && lastIndex != survivorIndex);
+            var currentIndex = SurvivorCatalog.GetSurvivorIndexFromBodyIndex(localUser.currentNetworkUser.bodyIndexPreference);
+            var canSelectSameCharacter = ConfigHelper.CanSelectSameCharacter.Value;
+            var survivors = SurvivorCatalog.idealSurvivorOrder.Where(survivorIndex => (canSelectSameCharacter || currentIndex != survivorIndex) && SurvivorCatalog.SurvivorIsUnlockedOnThisClient(survivorIndex));
             var randomIndex = survivors.ElementAt(UnityEngine.Random.Range(0, survivors.Count()));
-            
+            RandomCharacterSelectionPlugin.InstanceLogger.LogWarning($"{(int)currentIndex} | {(int)randomIndex}");
             if (characterSelectController)
             {
                 characterSelectController.SelectSurvivor(randomIndex);
@@ -84,7 +81,6 @@ namespace RandomCharacterSelection
                 ScrollableLobbyUISelectCharacter(randomIndex);
             }
             localUser.currentNetworkUser?.CallCmdSetBodyPreference(BodyCatalog.FindBodyIndex(SurvivorCatalog.GetSurvivorDef(randomIndex).bodyPrefab));
-            lastSelectedCharacterIndex[localUser] = randomIndex;
         }
 
         public void RandomizeLoadout()
