@@ -14,7 +14,7 @@ namespace RandomCharacterSelection
     [R2APISubmoduleDependency(nameof(LanguageAPI))]
     [NetworkCompatibility(CompatibilityLevel.NoNeedForSync)]
     [BepInDependency("com.bepis.r2api", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInPlugin("com.KingEnderBrine.RandomCharacterSelection", "Random Character Selection", "1.2.0")]
+    [BepInPlugin("com.KingEnderBrine.RandomCharacterSelection", "Random Character Selection", "1.2.1")]
     public class RandomCharacterSelectionPlugin : BaseUnityPlugin
     {
         internal const string RANDOMIZE_CHARACTER_BUTTON = nameof(RANDOMIZE_CHARACTER_BUTTON);

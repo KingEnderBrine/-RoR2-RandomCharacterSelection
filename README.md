@@ -11,6 +11,10 @@ Second one, pick random skills and skin for current selected character.
 To navigate to\from these buttons use left\right keys on a D-pad, just like you select a difficulty/artifacts.
 
 # Changelog
+**1.2.1**
+
+* Fixed Eclipse character randomization
+
 **1.2.0**
 
 * Added config that let you enable selecting the same character as currently selected.
