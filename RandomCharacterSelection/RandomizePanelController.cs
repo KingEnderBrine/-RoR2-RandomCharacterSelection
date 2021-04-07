@@ -64,7 +64,7 @@ namespace RandomCharacterSelection
             var localUser = ((MPEventSystem)EventSystem.current).localUser;
             var currentIndex = characterSelectController?.selectedSurvivorIndex ?? (SurvivorIndex)EclipseRun.cvEclipseSurvivorIndex.value;
             var canSelectSameCharacter = ConfigHelper.CanSelectSameCharacter.Value;
-            var survivors = SurvivorCatalog.orderedSurvivorDefs.Where(survivorDef => (canSelectSameCharacter || currentIndex != survivorDef.survivorIndex) && SurvivorCatalog.SurvivorIsUnlockedOnThisClient(survivorDef.survivorIndex));
+            var survivors = SurvivorCatalog.orderedSurvivorDefs.Where(survivorDef => (canSelectSameCharacter || currentIndex != survivorDef.survivorIndex) && !survivorDef.hidden && SurvivorCatalog.SurvivorIsUnlockedOnThisClient(survivorDef.survivorIndex));
             var randomIndex = survivors.ElementAt(UnityEngine.Random.Range(0, survivors.Count())).survivorIndex;
             if (characterSelectController)
             {
