@@ -64,8 +64,8 @@ namespace RandomCharacterSelection
             var localUser = ((MPEventSystem)EventSystem.current).localUser;
             var currentIndex = characterSelectController?.selectedSurvivorIndex ?? (SurvivorIndex)EclipseRun.cvEclipseSurvivorIndex.value;
             var canSelectSameCharacter = ConfigHelper.CanSelectSameCharacter.Value;
-            var survivors = SurvivorCatalog.idealSurvivorOrder.Where(survivorIndex => (canSelectSameCharacter || currentIndex != survivorIndex) && SurvivorCatalog.SurvivorIsUnlockedOnThisClient(survivorIndex));
-            var randomIndex = survivors.ElementAt(UnityEngine.Random.Range(0, survivors.Count()));
+            var survivors = SurvivorCatalog.orderedSurvivorDefs.Where(survivorDef => (canSelectSameCharacter || currentIndex != survivorDef.survivorIndex) && !survivorDef.hidden && SurvivorCatalog.SurvivorIsUnlockedOnThisClient(survivorDef.survivorIndex));
+            var randomIndex = survivors.ElementAt(UnityEngine.Random.Range(0, survivors.Count())).survivorIndex;
             if (characterSelectController)
             {
                 characterSelectController.SelectSurvivor(randomIndex);
@@ -102,7 +102,7 @@ namespace RandomCharacterSelection
                 var unlockedVariants = new List<uint>();
                 for (uint j = 0; j < skill.skillFamily.variants.Length; j++)
                 {
-                    if (localUser.userProfile.HasUnlockable(skill.skillFamily.variants[j].unlockableName))
+                    if (localUser.userProfile.HasUnlockable(skill.skillFamily.variants[j].unlockableDef))
                     {
                         unlockedVariants.Add(j);
                     }
@@ -114,7 +114,7 @@ namespace RandomCharacterSelection
             var unlockedSkins = new List<uint>();
             for (uint j = 0; j < bodySkins.Length; j++)
             {
-                if (localUser.userProfile.HasUnlockable(bodySkins[j].unlockableName))
+                if (localUser.userProfile.HasUnlockable(bodySkins[j].unlockableDef))
                 {
                     unlockedSkins.Add(j);
                 }

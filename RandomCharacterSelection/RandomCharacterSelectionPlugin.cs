@@ -1,20 +1,18 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
-using R2API;
-using R2API.Utils;
+using RoR2;
 using System.Security;
 using System.Security.Permissions;
 
 [module: UnverifiableCode]
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
+[assembly: R2API.Utils.ManualNetworkRegistration]
+[assembly: EnigmaticThunder.Util.ManualNetworkRegistration]
 namespace RandomCharacterSelection
 {
     [BepInDependency("com.KingEnderBrine.ScrollableLobbyUI", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.KingEnderBrine.InLobbyConfig", BepInDependency.DependencyFlags.SoftDependency)]
-    [R2APISubmoduleDependency(nameof(LanguageAPI))]
-    [NetworkCompatibility(CompatibilityLevel.NoNeedForSync)]
-    [BepInDependency("com.bepis.r2api", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInPlugin("com.KingEnderBrine.RandomCharacterSelection", "Random Character Selection", "1.2.1")]
+    [BepInPlugin("com.KingEnderBrine.RandomCharacterSelection", "Random Character Selection", "1.3.1")]
     public class RandomCharacterSelectionPlugin : BaseUnityPlugin
     {
         internal const string RANDOMIZE_CHARACTER_BUTTON = nameof(RANDOMIZE_CHARACTER_BUTTON);
@@ -31,13 +29,13 @@ namespace RandomCharacterSelection
             ScrollableLobbyUILoaded = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.KingEnderBrine.ScrollableLobbyUI");
             InLobbyConfigLoaded = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.KingEnderBrine.InLobbyConfig");
             
-            AddLanguageTokens();
             AssetBundleHelper.LoadAssetBundle();
 
             ConfigHelper.InitConfig(Config);
 
             On.RoR2.UI.CharacterSelectController.Awake += RandomizePanelController.CharacterSelectControllerAwake;
             On.RoR2.UI.EclipseRunScreenController.Start += RandomizePanelController.EclipseRunScreenControllerStart;
+            On.RoR2.Language.LoadStrings += LoadStrings;
         }
 
         private void Destroy()
@@ -47,13 +45,22 @@ namespace RandomCharacterSelection
             AssetBundleHelper.UnloadAssetBundle();
             On.RoR2.UI.CharacterSelectController.Awake -= RandomizePanelController.CharacterSelectControllerAwake;
             On.RoR2.UI.EclipseRunScreenController.Start -= RandomizePanelController.EclipseRunScreenControllerStart;
+            On.RoR2.Language.LoadStrings -= LoadStrings;
         }
 
-        private static void AddLanguageTokens()
+        private static void LoadStrings(On.RoR2.Language.orig_LoadStrings orig, Language self)
         {
-            LanguageAPI.Add(RANDOMIZE_CHARACTER_BUTTON, "Pick random");
-            LanguageAPI.Add(RANDOMIZE_CHARACTER_BUTTON, "Pick random", "en");
-            LanguageAPI.Add(RANDOMIZE_CHARACTER_BUTTON, "Выбрать случайного", "RU");
+            orig(self);
+
+            switch (self.name.ToLower())
+            {
+                case "ru":
+                    self.SetStringByToken(RANDOMIZE_CHARACTER_BUTTON, "Выбрать случайного");
+                    break;
+                default:
+                    self.SetStringByToken(RANDOMIZE_CHARACTER_BUTTON, "Pick random");
+                    break;
+            }
         }
     }
 }

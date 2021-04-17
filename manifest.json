@@ -1,10 +1,10 @@
 {
     "name": "RandomCharacterSelection",
-    "version_number": "1.2.1",
+    "version_number": "1.3.1",
     "website_url": "https://github.com/KingEnderBrine/-RoR2-RandomCharacterSelection",
     "description": "Adds buttons to pick a random character and random loadout",
     "dependencies": [
         "bbepis-BepInExPack-5.3.1",
-	    "tristanmcpherson-R2API-2.5.14"
+	    "XoXFaby-MMHOOK_Standalone-1.0.1"
     ]
 }
