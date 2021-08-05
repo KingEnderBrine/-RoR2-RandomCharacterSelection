@@ -96,6 +96,8 @@ namespace RandomCharacterSelection
             var localUser = ((MPEventSystem)EventSystem.current).localUser;
 
             var loadout = new Loadout();
+            localUser.userProfile.CopyLoadout(loadout);
+
             for (var i = 0; i < bodySkills.Length; i++)
             {
                 var skill = bodySkills[i];

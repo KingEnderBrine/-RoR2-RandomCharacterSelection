@@ -6,13 +6,11 @@ using System.Security.Permissions;
 
 [module: UnverifiableCode]
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
-[assembly: R2API.Utils.ManualNetworkRegistration]
-[assembly: EnigmaticThunder.Util.ManualNetworkRegistration]
 namespace RandomCharacterSelection
 {
     [BepInDependency("com.KingEnderBrine.ScrollableLobbyUI", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.KingEnderBrine.InLobbyConfig", BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInPlugin("com.KingEnderBrine.RandomCharacterSelection", "Random Character Selection", "1.3.1")]
+    [BepInPlugin("com.KingEnderBrine.RandomCharacterSelection", "Random Character Selection", "1.3.2")]
     public class RandomCharacterSelectionPlugin : BaseUnityPlugin
     {
         internal const string RANDOMIZE_CHARACTER_BUTTON = nameof(RANDOMIZE_CHARACTER_BUTTON);
