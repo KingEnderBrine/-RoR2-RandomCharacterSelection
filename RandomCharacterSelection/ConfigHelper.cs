@@ -17,7 +17,7 @@ namespace RandomCharacterSelection
             }
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private static void InitInLobbyConfig(ConfigFile config)
         {
             InLobbyConfig.ModConfigCatalog.Add(InLobbyConfig.Fields.ConfigFieldUtilities.CreateFromBepInExConfigFile(config, "Random Character Selection"));

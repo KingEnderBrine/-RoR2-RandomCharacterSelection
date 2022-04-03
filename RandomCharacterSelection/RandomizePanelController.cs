@@ -20,66 +20,33 @@ namespace RandomCharacterSelection
         public GameObject randomizeLoadoutButton;
 
         private CharacterSelectController characterSelectController;
-        private EclipseRunScreenController eclipseRunScreenController;
-        private Component scrollableLobbyUIController;
+        private CharacterSelectBarController characterSelectBarController;
 
         private bool isEclipseRun => PreGameController.instance && PreGameController.instance.gameModeIndex == GameModeCatalog.FindGameModeIndex("EclipseRun");
 
         public void Start()
         {
             characterSelectController = GetComponentInParent<CharacterSelectController>();
-            eclipseRunScreenController = GetComponentInParent<EclipseRunScreenController>();
-            
-            StartCoroutine(StartDelayedCoroutine());
-        }
-
-        private IEnumerator StartDelayedCoroutine()
-        {
-            yield return new WaitForSeconds(0.1F);
-
-            if (isEclipseRun)
-            {
-                randomizeCharacterButton.SetActive(false);
-
-                var buttonHistory = GetComponent<HGButtonHistory>();
-                buttonHistory.lastRememberedGameObject = randomizeLoadoutButton;
-            }
-            if (eclipseRunScreenController)
-            {
-                randomizeLoadoutButton.SetActive(false);
-            }
-            if (RandomCharacterSelectionPlugin.ScrollableLobbyUILoaded)
-            {
-                GetScrollableLobbyUIController();
-            }
+            characterSelectBarController = characterSelectController.GetComponentInChildren<CharacterSelectBarController>();
         }
 
         public void RandomizeCharacter()
         {
-            if ((!PreGameController.instance || !PreGameController.instance.IsCharacterSwitchingCurrentlyAllowed() || !characterSelectController) && !eclipseRunScreenController)
+            if (!PreGameController.instance || !PreGameController.instance.IsCharacterSwitchingCurrentlyAllowed() || !characterSelectController)
             {
                 return;
             }
 
             var localUser = ((MPEventSystem)EventSystem.current).localUser;
-            var currentIndex = characterSelectController?.selectedSurvivorIndex ?? (SurvivorIndex)EclipseRun.cvEclipseSurvivorIndex.value;
+            var currentSurvivor = characterSelectController.currentSurvivorDef;
             var canSelectSameCharacter = ConfigHelper.CanSelectSameCharacter.Value;
-            var survivors = SurvivorCatalog.orderedSurvivorDefs.Where(survivorDef => (canSelectSameCharacter || currentIndex != survivorDef.survivorIndex) && !survivorDef.hidden && SurvivorCatalog.SurvivorIsUnlockedOnThisClient(survivorDef.survivorIndex));
-            var randomIndex = survivors.ElementAt(UnityEngine.Random.Range(0, survivors.Count())).survivorIndex;
+            var survivors = SurvivorCatalog.orderedSurvivorDefs.Where(survivorDef => (canSelectSameCharacter || currentSurvivor != survivorDef) && !survivorDef.hidden && SurvivorCatalog.SurvivorIsUnlockedOnThisClient(survivorDef.survivorIndex) && survivorDef.CheckRequiredExpansionEnabled() && survivorDef.CheckUserHasRequiredEntitlement(localUser));
+            var randomSurvivor = survivors.ElementAt(UnityEngine.Random.Range(0, survivors.Count()));
             if (characterSelectController)
             {
-                characterSelectController.SelectSurvivor(randomIndex);
+                characterSelectBarController.PickIconBySurvivorDef(randomSurvivor);
                 characterSelectController.SetSurvivorInfoPanelActive(true);
             }
-            if (eclipseRunScreenController)
-            {
-                eclipseRunScreenController.SelectSurvivor(randomIndex);
-            }
-            if (RandomCharacterSelectionPlugin.ScrollableLobbyUILoaded)
-            {
-                ScrollableLobbyUISelectCharacter(randomIndex);
-            }
-            localUser.currentNetworkUser?.CallCmdSetBodyPreference(BodyCatalog.FindBodyIndex(SurvivorCatalog.GetSurvivorDef(randomIndex).bodyPrefab));
         }
 
         public void RandomizeLoadout()
@@ -89,7 +56,7 @@ namespace RandomCharacterSelection
                 return;
             }
 
-            var bodyIndex = SurvivorCatalog.GetBodyIndexFromSurvivorIndex(characterSelectController.selectedSurvivorIndex);
+            var bodyIndex = SurvivorCatalog.GetBodyIndexFromSurvivorIndex(characterSelectController.currentSurvivorDef.survivorIndex);
             var bodySkills = BodyCatalog.GetBodyPrefabSkillSlots(bodyIndex);
             var bodySkins = BodyCatalog.GetBodySkins(bodyIndex);
 
@@ -125,29 +92,6 @@ namespace RandomCharacterSelection
             loadout.bodyLoadoutManager.SetSkinIndex(bodyIndex, unlockedSkins[UnityEngine.Random.Range(0, unlockedSkins.Count)]);
 
             localUser.userProfile.SetLoadout(loadout);
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        private void GetScrollableLobbyUIController()
-        {
-            if (characterSelectController)
-            {
-                scrollableLobbyUIController = characterSelectController.GetComponentInChildren<ScrollableLobbyUI.CharacterSelectBarControllerReplacement>();
-            }
-            if (eclipseRunScreenController)
-            {
-                scrollableLobbyUIController = eclipseRunScreenController.GetComponentInChildren<ScrollableLobbyUI.CharacterSelectBarControllerReplacement>();
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        private void ScrollableLobbyUISelectCharacter(SurvivorIndex survivorIndex)
-        {
-            if (!(scrollableLobbyUIController is ScrollableLobbyUI.CharacterSelectBarControllerReplacement barReplacement))
-            {
-                return;
-            }
-            barReplacement.OpenPageWithCharacter(survivorIndex);
         }
 
         internal static void CharacterSelectControllerAwake(On.RoR2.UI.CharacterSelectController.orig_Awake orig, CharacterSelectController self)
@@ -204,39 +148,6 @@ namespace RandomCharacterSelection
             randomizePanelCancelInputEvent.actionEvent = randomizePanelRightInputEvent.actionEvent;
             randomizePanelCancelInputEvent.requiredTopLayer = randomizePanelRightInputEvent.requiredTopLayer;
             randomizePanelCancelInputEvent.enabledObjectsIfActive = randomizePanelRightInputEvent.enabledObjectsIfActive;
-        }
-
-        internal static void EclipseRunScreenControllerStart(On.RoR2.UI.EclipseRunScreenController.orig_Start orig, EclipseRunScreenController self)
-        {
-            orig(self);
-
-            var rightPanel = self.transform.Find("Main Panel/RightPanel");
-
-            if (!CachedPrefab)
-            {
-                CachePrefabFromSurvivorGrid(rightPanel, "HeaderContainer");
-            }
-
-            var randomizePanel = GameObject.Instantiate(CachedPrefab, self.transform.Find("Main Panel"), false);
-
-            randomizePanel.GetComponents<HGGamepadInputEvent>().First(inputEvent => inputEvent.actionName == "UISubmitAlt").enabled = true;
-
-            var rectTransform = randomizePanel.GetComponent<RectTransform>();
-            rectTransform.anchorMin = new Vector2(1, 1);
-            rectTransform.anchorMax = new Vector2(1, 1);
-            rectTransform.pivot = new Vector2(1, 1);
-            rectTransform.anchoredPosition = new Vector2(-672, -130);
-
-            CloneGlyphInEclipse(self);
-        }
-
-        private static void CloneGlyphInEclipse(EclipseRunScreenController self)
-        {
-            var submenu = self.transform.Find("Main Panel/SubmenuLegend");
-            var glyph = GameObject.Instantiate(submenu.Find("GenericGlyphAndDescription"), submenu);
-            glyph.SetAsFirstSibling();
-            glyph.transform.Find("Text").GetComponent<InputBindingDisplayController>().actionName = "UISubmitAlt";
-            glyph.transform.Find("Description").GetComponent<LanguageTextMeshController>().token = RandomCharacterSelectionPlugin.RANDOMIZE_CHARACTER_BUTTON;
         }
 
         private static void CachePrefabFromSurvivorGrid(Transform panel, string survivorGridName)

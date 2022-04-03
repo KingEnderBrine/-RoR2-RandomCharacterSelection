@@ -11,6 +11,10 @@ Second one, pick random skills and skin for current selected character.
 To navigate to\from these buttons use left\right keys on a D-pad, just like you select a difficulty/artifacts.
 
 # Changelog
+**1.4.0**
+
+* Fixes for `Survivors of the Void` update
+
 **1.3.2**
 
 * Fixed an issue where using loadout randomization would reset loadout of other survivors
