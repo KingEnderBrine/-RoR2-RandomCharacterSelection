@@ -9,7 +9,7 @@ namespace RandomCharacterSelection
 {
     [BepInDependency("com.KingEnderBrine.ScrollableLobbyUI", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.KingEnderBrine.InLobbyConfig", BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInPlugin("com.KingEnderBrine.RandomCharacterSelection", "Random Character Selection", "1.4.0")]
+    [BepInPlugin("com.KingEnderBrine.RandomCharacterSelection", "Random Character Selection", "1.4.1")]
     public class RandomCharacterSelectionPlugin : BaseUnityPlugin
     {
         internal const string RANDOMIZE_CHARACTER_BUTTON = nameof(RANDOMIZE_CHARACTER_BUTTON);

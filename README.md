@@ -11,6 +11,10 @@ Second one, pick random skills and skin for current selected character.
 To navigate to\from these buttons use left\right keys on a D-pad, just like you select a difficulty/artifacts.
 
 # Changelog
+**1.4.1**
+
+* Update for `1.2.3.1` patch.
+
 **1.4.0**
 
 * Fixes for `Survivors of the Void` update
