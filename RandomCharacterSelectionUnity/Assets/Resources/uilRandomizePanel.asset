@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30cadc574223f5e428bf4da3cb1d95e4, type: 3}
+  m_Script: {fileID: -201737183, guid: 951ce57ad999ac1f040a4dceb5f8b763, type: 3}
   m_Name: uilRandomizePanel
   m_EditorClassIdentifier: 
   priority: 20

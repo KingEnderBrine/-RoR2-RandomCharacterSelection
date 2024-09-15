@@ -1,3 +1,24 @@
-﻿{
-	"name": "RandomCharacterSelection"
+{
+    "name": "RandomCharacterSelection",
+    "rootNamespace": "",
+    "references": [
+        "com.unity.multiplayer-hlapi.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "BepInEx.dll",
+        "MMHOOK_RoR2.dll",
+        "RoR2.dll",
+        "UnityEngine.UI.dll",
+        "Unity.TextMeshPro.dll",
+        "InLobbyConfig.dll",
+        "Rewired_Core.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
